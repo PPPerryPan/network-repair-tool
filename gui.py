@@ -8,7 +8,6 @@ import queue
 import customtkinter as ctk
 
 from constants import REPAIR_STEPS, THEME_COLORS, STEP_STATUS_CONFIG
-from admin_utils import is_admin, request_admin_privileges
 from network_utils import (
     get_ethernet_adapters,
     configure_network,
@@ -213,18 +212,6 @@ class NetworkRepairGUI:
         """自动开始修复网络"""
         self.is_repairing = True
         self.log_message("https://github.com/PPPerryPan/network_repair")
-        self.log_message("正在检查管理员权限...")
-        
-        if not is_admin():
-            self.log_message("需要管理员权限，正在请求提权...")
-            if request_admin_privileges():
-                self.root.after(2000, self.root.destroy)
-            else:
-                self.log_message("请求管理员权限失败")
-                self.log_message("请手动以管理员身份运行此程序")
-                time.sleep(5)
-            return
-        
         self.log_message("已获取管理员权限，开始自动修复网络...")
         
         repair_thread = threading.Thread(target=self.perform_repair)
