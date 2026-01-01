@@ -3,7 +3,7 @@
 # Repair steps list
 REPAIR_STEPS = [
     "Get Adapters",
-    "Reset Network Card",
+    "Reset Network Adapter",
     "Reset DNS",
     "Reconnect Network",
     "Complete"

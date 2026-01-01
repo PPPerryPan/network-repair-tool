@@ -14,7 +14,7 @@ A network repair tool developed based on Python and CustomTkinter that can autom
 ## Repair Process
 
 1. **Get Adapters**: Detect and obtain all available network adapters
-2. **Reset Network Card**: Set IP address and DNS to DHCP
+2. **Reset Network Adapter**: Set IP address and DNS to DHCP
 3. **Reset DNS**: Clear DNS cache and reset Winsock
 4. **Reconnect Network**: Release and renew IP address
 5. **Complete**: Display repair results and current network configuration
@@ -89,4 +89,4 @@ If you need to count the number of program runs, follow these steps to enable:
 - The program must run with administrator privileges, otherwise network repair operations cannot be performed
 - The repair process may require restarting the network connection, please be patient
 - Some complex network environments may require longer repair time
-- If the repair fails, it may be due to TUN network card, network proxy or other non-local network issues
+- If the repair fails, it may be due to TUN Network Adapter, network proxy or other non-local network issues
