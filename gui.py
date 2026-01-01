@@ -1,4 +1,4 @@
-"""GUI 界面模块"""
+"""GUI Interface Module"""
 import sys
 import os
 import tkinter as tk
@@ -21,25 +21,25 @@ from network_utils import (
 class NetworkRepairGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("网络修复工具")
+        self.root.title("Network Repair Tool")
         self.root.geometry("800x850")
         
-        # 设置 CustomTkinter 主题
+        # Set CustomTkinter theme
         self.appearance_mode = "System"
-        ctk.set_appearance_mode(self.appearance_mode)  # 跟随系统
+        ctk.set_appearance_mode(self.appearance_mode)  # Follow system
         ctk.set_default_color_theme("blue")
         
-        # 设置窗口图标
+        # Set window icon
         self.setup_icon()
         
-        # 颜色配置 - 根据外观模式选择颜色
+        # Color configuration - select colors based on appearance mode
         current_mode = ctk.get_appearance_mode().lower()
         self.colors = THEME_COLORS.get(current_mode, THEME_COLORS['light'])
         
-        # 创建消息队列用于线程间通信
+        # Create message queue for inter-thread communication
         self.message_queue = queue.Queue()
         
-        # 状态变量
+        # Status variables
         self.current_step = 0
         self.is_repairing = False
         
@@ -47,7 +47,7 @@ class NetworkRepairGUI:
         self.start_repair_automatically()
         
     def setup_icon(self):
-        """设置窗口图标和任务栏图标"""
+        """Set window and taskbar icons"""
         try:
             if getattr(sys, 'frozen', False):
                 base_path = sys._MEIPASS
@@ -69,23 +69,23 @@ class NetworkRepairGUI:
             if icon_path and os.path.exists(icon_path):
                 self.root.iconbitmap(icon_path)
             else:
-                print(f"未找到图标文件，尝试的路径: {possible_paths}")
+                print(f"Icon file not found, tried paths: {possible_paths}")
         except Exception as e:
-            print(f"设置窗口图标失败: {e}")
+            print(f"Failed to set window icon: {e}")
         
     def setup_ui(self):
-        """设置用户界面"""
-        # 配置 Grid 权重
+        """Set up user interface"""
+        # Configure Grid weights
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_rowconfigure(0, weight=1)
         
-        # 主背景容器
+        # Main background container
         main_container = ctk.CTkFrame(self.root, corner_radius=0, fg_color=self.colors['background'])
         main_container.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
         main_container.grid_columnconfigure(0, weight=1)
-        main_container.grid_rowconfigure(2, weight=1) # 日志区域自适应高度
+        main_container.grid_rowconfigure(2, weight=1) # Log area auto-resize height
         
-        # 1. 标题卡片区域
+        # 1. Title card area
         header_frame = ctk.CTkFrame(
             main_container, 
             fg_color=self.colors['surface'], 
@@ -99,7 +99,7 @@ class NetworkRepairGUI:
         
         title_label = ctk.CTkLabel(
             header_frame, 
-            text="🔧 网络修复工具", 
+            text="🔧 Network Repair Tool", 
             font=ctk.CTkFont(family="Microsoft YaHei UI", size=28, weight="bold"),
             text_color=self.colors['primary']
         )
@@ -107,13 +107,13 @@ class NetworkRepairGUI:
         
         subtitle_label = ctk.CTkLabel(
             header_frame, 
-            text="自动检测并修复本地网络连接问题", 
+            text="Automatically detect and repair local network connection issues", 
             font=ctk.CTkFont(family="Microsoft YaHei UI", size=15),
             text_color=self.colors['text_secondary']
         )
         subtitle_label.grid(row=1, column=0, padx=20, pady=(0, 20), sticky="w")
         
-        # 2. 步骤进度卡片
+        # 2. Step progress card
         steps_frame = ctk.CTkFrame(
             main_container, 
             fg_color=self.colors['surface'], 
@@ -127,20 +127,20 @@ class NetworkRepairGUI:
         self.step_icons = []
         self.step_labels = []
         
-        # 配置列权重
+        # Configure column weights
         for i in range(len(self.steps)):
             steps_frame.grid_columnconfigure(i, weight=1)
             
         for i, step in enumerate(self.steps):
-            # 单个步骤容器
+            # Single step container
             step_container = ctk.CTkFrame(steps_frame, fg_color="transparent")
             step_container.grid(row=0, column=i, padx=5, pady=20, sticky="ew")
             
-            # 添加悬停效果
+            # Add hover effect
             step_container.bind("<Enter>", lambda e, container=step_container: container.configure(fg_color="#f1f5f9" if ctk.get_appearance_mode().lower() == "light" else "#334155"))
             step_container.bind("<Leave>", lambda e, container=step_container: container.configure(fg_color="transparent"))
             
-            # 图标
+            # Icon
             icon_label = ctk.CTkLabel(
                 step_container, 
                 text="⏳", 
@@ -149,7 +149,7 @@ class NetworkRepairGUI:
             icon_label.pack(side="top", pady=(0, 8))
             self.step_icons.append(icon_label)
             
-            # 文字
+            # Text
             step_label = ctk.CTkLabel(
                 step_container, 
                 text=step, 
@@ -159,7 +159,7 @@ class NetworkRepairGUI:
             step_label.pack(side="top")
             self.step_labels.append(step_label)
             
-        # 3. 执行日志卡片
+        # 3. Execution log card
         log_frame = ctk.CTkFrame(
             main_container, 
             fg_color=self.colors['surface'], 
@@ -173,13 +173,13 @@ class NetworkRepairGUI:
         
         log_title = ctk.CTkLabel(
             log_frame, 
-            text="📋 执行日志", 
+            text="📋 Execution Log", 
             font=ctk.CTkFont(family="Microsoft YaHei UI", size=16, weight="bold"),
             text_color=self.colors['text']
         )
         log_title.grid(row=0, column=0, padx=20, pady=(20, 15), sticky="w")
         
-        # 文本框
+        # Textbox
         self.output_text = ctk.CTkTextbox(
             log_frame,
             font=ctk.CTkFont(family="Consolas", size=13),
@@ -191,105 +191,105 @@ class NetworkRepairGUI:
         )
         self.output_text.grid(row=1, column=0, padx=20, pady=(0, 20), sticky="nsew")
         
-        # 为日志文本框添加右键菜单
+        # Add right-click menu for log textbox
         self.setup_textbox_context_menu()
         
-        # 开始处理消息队列
+        # Start processing message queue
         self.process_queue()
         
     def update_step_progress(self, step_index, status="waiting"):
-        """更新步骤进度"""
+        """Update step progress"""
         if 0 <= step_index < len(self.steps):
             icon, color_key = STEP_STATUS_CONFIG.get(status, STEP_STATUS_CONFIG["waiting"])
             color = self.colors[color_key]
             
-            # 添加步骤状态变化的动画效果
+            # Add animation effect for step status change
             self.animate_step_change(step_index, icon, color, status)
             
             self.root.update_idletasks()
     
     def start_repair_automatically(self):
-        """自动开始修复网络"""
+        """Automatically start network repair"""
         self.is_repairing = True
         self.log_message("https://github.com/PPPerryPan/network_repair")
-        self.log_message("已获取管理员权限，开始自动修复网络...")
+        self.log_message("Administrator privileges acquired, starting automatic network repair...")
         
         repair_thread = threading.Thread(target=self.perform_repair)
         repair_thread.daemon = True
         repair_thread.start()
     
     def log_message(self, message):
-        """添加消息到输出框"""
+        """Add message to output box"""
         self.message_queue.put(message)
     
     def process_queue(self):
-        """处理消息队列"""
+        """Process message queue"""
         try:
             while True:
                 message = self.message_queue.get_nowait()
                 self.output_text.insert(tk.END, message + "\n")
                 self.output_text.see(tk.END)
-                # CustomTkinter 的 Textbox 更新可能需要 update
+                # CustomTkinter Textbox update may need update
         except queue.Empty:
             pass
         finally:
             self.root.after(100, self.process_queue)
     
     def perform_repair(self):
-        """执行网络修复操作"""
+        """Perform network repair operations"""
         try:
-            self.log_message("🚀 开始网络修复...")
+            self.log_message("🚀 Starting network repair...")
             
-            # 获取以太网适配器
-            self.log_message("📡 正在获取网络适配器信息...")
+            # Get Ethernet adapters
+            self.log_message("📡 Getting network adapter information...")
             self.update_step_progress(0, "running")
             self.current_step_index = 0
             adapters = get_ethernet_adapters(log_callback=self.log_message)
             if not adapters:
-                self.log_message("❌ 未找到任何以太网适配器")
+                self.log_message("❌ No Ethernet adapters found")
                 self.update_step_progress(0, "error")
                 return
             
-            self.log_message(f"✅ 找到 {len(adapters)} 个以太网适配器")
+            self.log_message(f"✅ Found {len(adapters)} Ethernet adapters")
             self.update_step_progress(0, "completed")
             
-            # 配置网络
-            self.log_message("⚙️ 正在配置网络设置...")
+            # Configure network
+            self.log_message("⚙️ Configuring network settings...")
             self.update_step_progress(1, "running")
             self.current_step_index = 1
             configure_network(adapters, log_callback=self.log_message)
             self.update_step_progress(1, "completed")
             
-            # 设置DNS
-            self.log_message("🌐 正在设置DNS为DHCP...")
+            # Set DNS
+            self.log_message("🌐 Setting DNS to DHCP...")
             self.update_step_progress(2, "running")
             self.current_step_index = 2
             set_dns_to_dhcp(adapters, log_callback=self.log_message)
             self.update_step_progress(2, "completed")
             
-            # 刷新网络配置
-            self.log_message("🔄 正在刷新网络配置...")
+            # Refresh network configuration
+            self.log_message("🔄 Refreshing network configuration...")
             self.update_step_progress(3, "running")
             self.current_step_index = 3
             refresh_network_config(log_callback=self.log_message)
             self.update_step_progress(3, "completed")
             
-            # 显示网络信息
-            self.log_message("📊 正在获取网络配置信息...")
+            # Display network information
+            self.log_message("📊 Getting network configuration information...")
             # try:
             #     upload_usage(log_callback=self.log_message)
             # except Exception as e:
-            #     self.log_message(f"跳过")
+            #     self.log_message(f"Skipped")
             self.update_step_progress(4, "running")
             self.current_step_index = 4
             display_network_info(log_callback=self.log_message)
             self.update_step_progress(4, "completed")
             
-            self.log_message("\n🎉 已完成处理，网络应该恢复正常了 []~(￣▽￣)~*")
-            self.log_message("💡 若还是不行，可能使用了 TUN 网卡，或非本机网络问题，请检查网络代理工具配置或联系您的网络管理员。 (＠_＠;)")
+            self.log_message("\n🎉 Processing completed, network should be restored []~(￣▽￣)~*")
+            self.log_message("💡 If it still doesn't work, you might be using a TUN Adapter, or it's a non-local network issue. Please check your network proxy tool configuration or contact your network administrator. (＠_＠;)")
             
         except Exception as e:
-            self.log_message(f"❌ 修复过程中出现错误: {str(e)}")
+            self.log_message(f"❌ Error occurred during repair: {str(e)}")
             if hasattr(self, 'current_step_index'):
                 self.update_step_progress(self.current_step_index, "error")
         finally:
@@ -297,25 +297,25 @@ class NetworkRepairGUI:
             self.root.after(0, self.repair_completed)
     
     def repair_completed(self):
-        """修复完成后的UI更新"""
+        """UI updates after repair completion"""
         self.update_step_progress(0, "completed")
         self.update_step_progress(1, "completed")
         self.update_step_progress(2, "completed")
         self.update_step_progress(3, "completed")
         self.update_step_progress(4, "completed")
         
-        # 添加庆祝动画
+        # Add celebration animation
         self.animate_completion()
         
-        self.log_message("\n✅ 修复完成，程序将在60秒后自动关闭...")
+        self.log_message("\n✅ Repair completed, program will automatically close in 60 seconds...")
         self.root.after(60000, self.root.destroy)
     
     def animate_step_change(self, step_index, icon, color, status):
-        """为步骤变化添加动画效果"""
-        # 更新图标和颜色
+        """Add animation effect for step change"""
+        # Update icon and color
         self.step_icons[step_index].configure(text=icon, text_color=color)
         
-        # 更新文字颜色
+        # Update text color
         if status == "running":
             self.step_labels[step_index].configure(text_color=self.colors['primary'], font=ctk.CTkFont(family="Microsoft YaHei UI", size=12, weight="bold"))
         elif status == "completed":
@@ -325,89 +325,89 @@ class NetworkRepairGUI:
         else:
             self.step_labels[step_index].configure(text_color=self.colors['text_secondary'], font=ctk.CTkFont(family="Microsoft YaHei UI", size=12))
         
-        # 添加缩放动画
+        # Add scale animation
         self.animate_icon_scale(self.step_icons[step_index])
     
     def animate_icon_scale(self, icon_label):
-        """图标缩放动画"""
-        # 保存原始字体大小
+        """Icon scale animation"""
+        # Save original font size
         original_font = icon_label.cget("font")
         
-        # 放大动画
+        # Enlarge animation
         def scale_up():
             icon_label.configure(font=ctk.CTkFont(family="Segoe UI Emoji", size=28))
             self.root.after(100, scale_down)
         
-        # 缩小回原始大小
+        # Shrink back to original size
         def scale_down():
             icon_label.configure(font=original_font)
         
         scale_up()
     
     def animate_completion(self):
-        """修复完成的庆祝动画"""
-        # 让所有完成的步骤图标跳动
+        """Completion celebration animation"""
+        # Make all completed step icons bounce
         def animate_step_icons():
             for i in range(5):
                 for icon in self.step_icons:
                     if icon.cget("text") == "✅":
-                        # 保存原始字体
+                        # Save original font
                         original_font = icon.cget("font")
-                        # 放大
+                        # Enlarge
                         icon.configure(font=ctk.CTkFont(family="Segoe UI Emoji", size=28))
                         self.root.after(100, lambda icon=icon, original_font=original_font: icon.configure(font=original_font))
-                self.root.after(200, lambda: None)  # 等待下一帧
+                self.root.after(200, lambda: None)  # Wait for next frame
         
-        # 执行动画
+        # Execute animation
         animate_step_icons()
     
     def setup_textbox_context_menu(self):
-        """设置文本框的右键菜单"""
-        # 创建右键菜单
+        """Set up right-click menu for textbox"""
+        # Create right-click menu
         self.context_menu = tk.Menu(self.root, tearoff=0, bg=self.colors['surface'], fg=self.colors['text'])
         
-        # 添加菜单项
-        self.context_menu.add_command(label="复制", command=self.copy_text)
-        self.context_menu.add_command(label="粘贴", command=self.paste_text)
+        # Add menu items
+        self.context_menu.add_command(label="Copy", command=self.copy_text)
+        self.context_menu.add_command(label="Paste", command=self.paste_text)
         self.context_menu.add_separator()
-        self.context_menu.add_command(label="全选", command=self.select_all_text)
+        self.context_menu.add_command(label="Select All", command=self.select_all_text)
         
-        # 绑定右键事件
+        # Bind right-click event
         self.output_text.bind("<Button-3>", self.show_context_menu)
-        # 绑定键盘快捷键
+        # Bind keyboard shortcuts
         self.output_text.bind("<Control-c>", self.copy_text)
         self.output_text.bind("<Control-v>", self.paste_text)
         self.output_text.bind("<Control-a>", self.select_all_text)
     
     def show_context_menu(self, event):
-        """显示右键菜单"""
+        """Show right-click menu"""
         try:
             self.context_menu.tk_popup(event.x_root, event.y_root, 0)
         finally:
             self.context_menu.grab_release()
     
     def copy_text(self, event=None):
-        """复制选中的文本"""
+        """Copy selected text"""
         try:
             selected_text = self.output_text.get("sel.first", "sel.last")
             self.root.clipboard_clear()
             self.root.clipboard_append(selected_text)
         except tk.TclError:
-            # 没有选中的文本
+            # No text selected
             pass
     
     def paste_text(self, event=None):
-        """粘贴文本"""
+        """Paste text"""
         try:
             clipboard_text = self.root.clipboard_get()
-            # 在当前光标位置插入文本
+            # Insert text at current cursor position
             self.output_text.insert(tk.INSERT, clipboard_text)
         except tk.TclError:
-            # 剪贴板为空
+            # Clipboard is empty
             pass
     
     def select_all_text(self, event=None):
-        """全选文本"""
+        """Select all text"""
         self.output_text.tag_add(tk.SEL, "1.0", tk.END)
         self.output_text.mark_set(tk.INSERT, "1.0")
         self.output_text.see(tk.INSERT)

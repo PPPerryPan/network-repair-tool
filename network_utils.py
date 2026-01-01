@@ -1,4 +1,4 @@
-"""网络操作工具模块"""
+"""Network Operations Utility Module"""
 import subprocess
 import time
 import wmi
@@ -8,7 +8,7 @@ import requests
 
 
 def get_startupinfo():
-    """获取 subprocess 启动信息，用于隐藏控制台窗口"""
+    """Get subprocess startup information to hide console window"""
     startupinfo = subprocess.STARTUPINFO()
     startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
     startupinfo.wShowWindow = subprocess.SW_HIDE
@@ -17,16 +17,16 @@ def get_startupinfo():
 
 def get_ethernet_adapters(log_callback=None):
     """
-    获取以太网适配器信息
+    Get Ethernet adapter information
     
     Args:
-        log_callback: 日志回调函数，用于输出日志信息
+        log_callback: Log callback function for outputting log information
     
     Returns:
-        list: 适配器信息列表，每个元素包含 'name' 和 'description'
+        list: List of adapter information, each element contains 'name' and 'description'
     """
     if log_callback:
-        log_callback("正在获取以太网适配器信息...")
+        log_callback("Getting Ethernet adapter information...")
     
     startupinfo = get_startupinfo()
     
@@ -61,37 +61,37 @@ def get_ethernet_adapters(log_callback=None):
         
         for adapter in adapters:
             if log_callback:
-                log_callback(f"  📡 找到适配器: {adapter['name']} ({adapter['description']})")
+                log_callback(f"  📡 Found adapter: {adapter['name']} ({adapter['description']})")
         
         return adapters
         
     except Exception as e:
         if log_callback:
-            log_callback(f"❌ 获取适配器信息失败: {str(e)}")
+            log_callback(f"❌ Failed to get adapter information: {str(e)}")
         return []
 
 
 def configure_network(adapters, log_callback=None):
     """
-    配置网络设置（设置IP和DNS为DHCP）
+    Configure network settings (set IP and DNS to DHCP)
     
     Args:
-        adapters: 适配器信息列表
-        log_callback: 日志回调函数
+        adapters: List of adapter information
+        log_callback: Log callback function
     """
     if log_callback:
-        log_callback("开始配置网络设置...")
+        log_callback("Starting network configuration...")
     
     startupinfo = get_startupinfo()
     
     for adapter_info in adapters:
         if log_callback:
-            log_callback(f"  🔧 正在配置适配器: {adapter_info['name']}")
+            log_callback(f"  🔧 Configuring adapter: {adapter_info['name']}")
         adapter_name = adapter_info['name']
         
-        # 设置DHCP
+        # Set DHCP
         try:
-            # 设置IP地址为DHCP
+            # Set IP address to DHCP
             result = subprocess.run([
                 "netsh", "interface", "ip", "set", "address",
                 adapter_name, "source=dhcp"
@@ -99,16 +99,16 @@ def configure_network(adapters, log_callback=None):
             
             if result.returncode == 0:
                 if log_callback:
-                    log_callback(f"    ✅ 设置IP地址为DHCP成功")
+                    log_callback(f"    ✅ Set IP address to DHCP successfully")
             else:
                 if result.stderr:
                     if log_callback:
-                        log_callback(f"    ❌ 设置IP地址失败: {result.stderr}")
+                        log_callback(f"    ❌ Failed to set IP address: {result.stderr}")
                 else:
                     if log_callback:
-                        log_callback(f"    ✅ 设置IP地址为DHCP成功")
+                        log_callback(f"    ✅ Set IP address to DHCP successfully")
             
-            # 设置DNS为DHCP
+            # Set DNS to DHCP
             result = subprocess.run([
                 "netsh", "interface", "ip", "set", "dnsservers",
                 adapter_name, "source=dhcp"
@@ -116,55 +116,55 @@ def configure_network(adapters, log_callback=None):
             
             if result.returncode == 0:
                 if log_callback:
-                    log_callback(f"    ✅ 设置DNS为DHCP成功")
+                    log_callback(f"    ✅ Set DNS to DHCP successfully")
             else:
                 if result.stderr:
                     if log_callback:
-                        log_callback(f"    ❌ 设置DNS失败: {result.stderr}")
+                        log_callback(f"    ❌ Failed to set DNS: {result.stderr}")
                 else:
                     if log_callback:
-                        log_callback(f"    ✅ 设置DNS为DHCP成功")
+                        log_callback(f"    ✅ Set DNS to DHCP successfully")
                         
         except Exception as e:
             if log_callback:
-                log_callback(f"    ❌ 配置适配器时出错: {str(e)}")
+                log_callback(f"    ❌ Error configuring adapter: {str(e)}")
 
 
 def set_dns_to_dhcp(adapters, log_callback=None):
     """
-    使用WMI设置DNS为DHCP
+    Set DNS to DHCP using WMI
     
     Args:
-        adapters: 适配器信息列表
-        log_callback: 日志回调函数
+        adapters: List of adapter information
+        log_callback: Log callback function
     """
     if log_callback:
-        log_callback("正在设置DNS为DHCP...")
+        log_callback("Setting DNS to DHCP...")
     
     try:
-        # 在子线程中初始化COM
+        # Initialize COM in child thread
         pythoncom.CoInitialize()
         
         c = wmi.WMI()
         
         for adapter_info in adapters:
             if log_callback:
-                log_callback(f"  🌐 正在为适配器设置DNS: {adapter_info['name']}")
+                log_callback(f"  🌐 Setting DNS for adapter: {adapter_info['name']}")
             for adapter in c.Win32_NetworkAdapterConfiguration(IPEnabled=True):
                 if adapter.Description == adapter_info['description']:
                     result = adapter.SetDNSServerSearchOrder()
                     if result[0] == 0:
                         if log_callback:
-                            log_callback(f"    ✅ DNS设置为自动获取成功")
+                            log_callback(f"    ✅ Successfully set DNS to automatic acquisition")
                     else:
                         if log_callback:
-                            log_callback(f"    ❌ DNS设置为自动获取失败，错误代码: {result[0]}")
+                            log_callback(f"    ❌ Failed to set DNS to automatic acquisition, error code: {result[0]}")
                     break
     except Exception as e:
         if log_callback:
-            log_callback(f"❌ 设置DNS时出错: {str(e)}")
+            log_callback(f"❌ Error setting DNS: {str(e)}")
     finally:
-        # 清理COM
+        # Clean up COM
         try:
             pythoncom.CoUninitialize()
         except:
@@ -173,19 +173,19 @@ def set_dns_to_dhcp(adapters, log_callback=None):
 
 def refresh_network_config(log_callback=None):
     """
-    刷新网络配置
+    Refresh network configuration
     
     Args:
-        log_callback: 日志回调函数
+        log_callback: Log callback function
     """
     startupinfo = get_startupinfo()
     
     if log_callback:
-        log_callback("正在刷新DNS缓存...")
+        log_callback("Refreshing DNS cache...")
     subprocess.run(["ipconfig", "/flushdns"], capture_output=True, startupinfo=startupinfo)
     
     if log_callback:
-        log_callback("正在释放IP地址...")
+        log_callback("Releasing IP address...")
     subprocess.run(["ipconfig", "/release"], capture_output=True, startupinfo=startupinfo)
     subprocess.run(["ipconfig", "/release"], capture_output=True, startupinfo=startupinfo)
     subprocess.run(["ipconfig", "/release"], capture_output=True, startupinfo=startupinfo)
@@ -193,23 +193,23 @@ def refresh_network_config(log_callback=None):
     time.sleep(5)
     
     if log_callback:
-        log_callback("正在重新获取IP地址...")
-        log_callback("运行中，请耐心等待...")
-        log_callback("部分网络环境复杂的电脑可能需要几分钟时间加载，请耐心等待...")
-        log_callback("这是 Windows 的一个 Feature ，不是 Bug，请耐心等待")
+        log_callback("Renewing IP address...")
+        log_callback("Running, please wait patiently...")
+        log_callback("Computers with complex network environments may take several minutes to load, please wait patiently...")
+        log_callback("This is a Windows feature, not a bug, please wait patiently")
     subprocess.run(["ipconfig", "/renew"], capture_output=True, startupinfo=startupinfo)
     
     if log_callback:
-        log_callback("再次刷新DNS缓存...")
+        log_callback("Refreshing DNS cache again...")
     subprocess.run(["ipconfig", "/flushdns"], capture_output=True, startupinfo=startupinfo)
     
     if log_callback:
-        log_callback("重置Winsock...")
+        log_callback("Resetting Winsock...")
     subprocess.run(["netsh", "winsock", "reset"], capture_output=True, startupinfo=startupinfo)
     
-    # 更新注册表设置，禁用代理
+    # Update registry settings to disable proxy
     if log_callback:
-        log_callback("正在禁用代理设置...")
+        log_callback("Disabling proxy settings...")
     try:
         subprocess.run([
             "reg", "add", "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings",
@@ -228,27 +228,27 @@ def refresh_network_config(log_callback=None):
             "/v", "ProxyServer", "/d", "", "/f"
         ], capture_output=True, startupinfo=startupinfo)
         if log_callback:
-            log_callback("✅ 代理设置已禁用")
+            log_callback("✅ Proxy settings disabled")
     except Exception as e:
         if log_callback:
-            log_callback(f"❌ 禁用代理设置失败: {str(e)}")
+            log_callback(f"❌ Failed to disable proxy settings: {str(e)}")
     
-    # 额外的DNS刷新
+    # Additional DNS refresh
     if log_callback:
-        log_callback("重复DNS刷新...")
+        log_callback("Repeating DNS refresh...")
     subprocess.run(["ipconfig", "/flushdns"], capture_output=True, startupinfo=startupinfo)
     subprocess.run(["netsh", "winsock", "reset"], capture_output=True, startupinfo=startupinfo)
 
 
 def display_network_info(log_callback=None):
     """
-    显示网络配置信息
+    Display network configuration information
     
     Args:
-        log_callback: 日志回调函数
+        log_callback: Log callback function
     """
     if log_callback:
-        log_callback("——————当前网络配置——————")
+        log_callback("——————Current Network Configuration——————")
     
     startupinfo = get_startupinfo()
     
@@ -265,10 +265,10 @@ def display_network_info(log_callback=None):
                 log_callback(result.stdout)
         else:
             if log_callback:
-                log_callback("❌ 获取网络配置信息失败")
+                log_callback("❌ Failed to get network configuration information")
     except Exception as e:
         if log_callback:
-            log_callback(f"❌ 显示网络信息时出错: {str(e)}")
+            log_callback(f"❌ Error displaying network information: {str(e)}")
     
     if log_callback:
         log_callback("————————————")
@@ -276,17 +276,17 @@ def display_network_info(log_callback=None):
 
 # def upload_usage(log_callback=None):
 #     """
-#     上传使用统计
-    
+#     Upload usage statistics
+#     
 #     Args:
-#         log_callback: 日志回调函数
+#         log_callback: Log callback function
 #     """
 #     try:
 #         data = {'software': USAGE_SOFTWARE_NAME}
 #         response = requests.post(USAGE_API_URL, json=data)
 #         if log_callback:
-#             log_callback(f"内网测试结果: {response.status_code}")
+#             log_callback(f"Internal network test result: {response.status_code}")
 #     except Exception as e:
 #         if log_callback:
-#             log_callback(f"上传使用统计失败: {str(e)}")
+#             log_callback(f"Failed to upload usage statistics: {str(e)}")
 

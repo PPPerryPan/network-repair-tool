@@ -1,10 +1,10 @@
-"""管理员权限工具模块"""
+"""Administrator Privileges Utility Module"""
 import ctypes
 import sys
 
 
 def is_admin():
-    """检查当前是否以管理员权限运行"""
+    """Check if currently running with administrator privileges"""
     try:
         return ctypes.windll.shell32.IsUserAnAdmin()
     except:
@@ -12,7 +12,7 @@ def is_admin():
 
 
 def request_admin_privileges():
-    """请求管理员权限（以管理员身份重新运行程序）"""
+    """Request administrator privileges (re-run program as administrator)"""
     try:
         ctypes.windll.shell32.ShellExecuteW(
             None, "runas", sys.executable, " ".join([sys.argv[0]] + sys.argv[1:]), None, 1

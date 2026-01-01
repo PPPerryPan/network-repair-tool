@@ -1,39 +1,39 @@
-"""常量定义模块"""
+"""Constants Definition Module"""
 
-# 修复步骤列表
+# Repair steps list
 REPAIR_STEPS = [
-    "获取适配器",
-    "重置网卡",
-    "重置 DNS",
-    "重新联网",
-    "完成"
+    "Get Adapters",
+    "Reset Network Card",
+    "Reset DNS",
+    "Reconnect Network",
+    "Complete"
 ]
 
-# 现代化主题颜色配置 - 支持深色/浅色模式
+# Modern theme color configuration - supports dark/light modes
 THEME_COLORS = {
     'light': {
-        'primary': '#2563eb',      # 蓝色
-        'success': '#16a34a',      # 绿色
-        'warning': '#ea580c',      # 橙色
-        'error': '#dc2626',        # 红色
-        'background': '#f8fafc',   # 浅灰背景
-        'surface': '#ffffff',      # 白色表面
-        'text': '#1e293b',         # 深灰文字
-        'text_secondary': '#64748b' # 次要文字
+        'primary': '#2563eb',      # Blue
+        'success': '#16a34a',      # Green
+        'warning': '#ea580c',      # Orange
+        'error': '#dc2626',        # Red
+        'background': '#f8fafc',   # Light gray background
+        'surface': '#ffffff',      # White surface
+        'text': '#1e293b',         # Dark gray text
+        'text_secondary': '#64748b' # Secondary text
     },
     'dark': {
-        'primary': '#3b82f6',      # 亮蓝色
-        'success': '#22c55e',      # 亮绿色
-        'warning': '#f97316',      # 亮橙色
-        'error': '#ef4444',        # 亮红色
-        'background': '#0f172a',   # 深蓝背景
-        'surface': '#1e293b',      # 深灰表面
-        'text': '#f1f5f9',         # 浅灰文字
-        'text_secondary': '#94a3b8' # 次要文字
+        'primary': '#3b82f6',      # Bright blue
+        'success': '#22c55e',      # Bright green
+        'warning': '#f97316',      # Bright orange
+        'error': '#ef4444',        # Bright red
+        'background': '#0f172a',   # Dark blue background
+        'surface': '#1e293b',      # Dark gray surface
+        'text': '#f1f5f9',         # Light gray text
+        'text_secondary': '#94a3b8' # Secondary text
     }
 }
 
-# 步骤状态配置 - 移除直接THEME_COLORS引用
+# Step status configuration - removed direct THEME_COLORS reference
 STEP_STATUS_CONFIG = {
     "waiting": ("⏳", "text_secondary"),
     "running": ("⏳", "primary"),
@@ -41,7 +41,7 @@ STEP_STATUS_CONFIG = {
     "error": ("❌", "error")
 }
 
-# 使用统计 API 配置
+# Usage statistics API configuration
 # USAGE_API_URL = 'http://localhost:10001/api/usage'
 # USAGE_SOFTWARE_NAME = 'network_repair'
 
